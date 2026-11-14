@@ -53,18 +53,11 @@ Kalau dokumentasinya bohong, packet capture yang jawab.
 
 ---
 
-### `> stats`
+### `> metrics`
 
-<div align="center">
+<img src="assets/stats.svg" width="100%" alt="metrics"/>
 
-<img height="165" src="https://github-readme-stats-sigma-five.vercel.app/api?username=altrml&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=ffffff&icon_color=ffffff&text_color=c9d1d9&rank_icon=github&include_all_commits=true&count_private=true" alt="stats"/>
-<img height="165" src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=altrml&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=ffffff&text_color=c9d1d9&langs_count=8" alt="languages"/>
-
-<br/><br/>
-
-<img src="https://streak-stats.demolab.com?user=altrml&hide_border=true&background=0d1117&ring=ffffff&fire=ffffff&currStreakNum=ffffff&sideNums=ffffff&currStreakLabel=c9d1d9&sideLabels=8b949e&dates=6e7681&stroke=30363d" alt="streak"/>
-
-</div>
+<sub>Dihitung ulang tiap 03:00 UTC oleh workflow di repo ini. Commit, bintang, bahasa — semua dari API, bukan gambar dari server orang.</sub>
 
 ---
 
