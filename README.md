@@ -55,13 +55,11 @@ Kalau dokumentasinya bohong, packet capture yang jawab.
 
 ---
 
-### `> trail`
+### `> activity`
 
-<p align="center"><em>jejak di dinding. tiap kotak itu satu malam.</em></p>
+<img src="assets/activity.svg" width="100%" alt="contribution activity"/>
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/altrml/altrml/output/github-contribution-grid-snake-dark.svg" width="100%" alt="contribution snake"/>
-</div>
+<sub>Kotaknya penuh sendiri. Satu malam, satu commit, satu kotak.</sub>
 
 ---
 
