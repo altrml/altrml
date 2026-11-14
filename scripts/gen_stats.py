@@ -30,6 +30,10 @@ query($login: String!) {
       restrictedContributionsCount
       totalPullRequestContributions
       totalIssueContributions
+      contributionCalendar {
+        totalContributions
+        weeks { contributionDays { contributionCount } }
+      }
     }
     repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
       totalCount
@@ -192,6 +196,60 @@ def build(user):
     )
 
 
+LEVELS = ("#161b22", "#2a2a2a", "#454545", "#8a8a8a", "#ffffff")
+
+
+def level_of(count):
+    if count <= 0:
+        return 0
+    if count <= 2:
+        return 1
+    if count <= 5:
+        return 2
+    if count <= 9:
+        return 3
+    return 4
+
+
+def build_activity(user):
+    calendar = user["contributionsCollection"]["contributionCalendar"]
+    weeks = calendar["weeks"][-53:]
+    total = calendar["totalContributions"]
+
+    x0, y0, pitch, size = 28.0, 60.0, 14.0, 11.0
+    body = '<text class="mono lbl" x="28" y="34">ACTIVITY</text>'
+    body += '<text class="mono sub" x="852" y="34" text-anchor="end">LAST 12 MONTHS</text>'
+    body += '<line x1="28" y1="48" x2="852" y2="48" stroke="' + LINE + '"/>'
+
+    body += '<g class="row">'
+    for week_index, week in enumerate(weeks):
+        for day_index, day in enumerate(week["contributionDays"]):
+            shade = LEVELS[level_of(day["contributionCount"])]
+            body += (
+                '<rect x="' + ("%.0f" % (x0 + week_index * pitch)) + '" y="'
+                + ("%.0f" % (y0 + day_index * 13)) + '" width="' + ("%.0f" % size)
+                + '" height="' + ("%.0f" % size) + '" rx="2" fill="' + shade + '"/>'
+            )
+    body += "</g>"
+
+    label = "%d contribution" % total if total == 1 else "%d contributions" % total
+    body += '<text class="mono sub" x="28" y="166">' + label + " in the last year</text>"
+    body += '<text class="mono sub" x="852" y="166" text-anchor="end">every box is a night</text>'
+
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="' + str(W) + '" height="180" viewBox="0 0 '
+        + str(W) + ' 180" role="img" aria-label="altrml activity">'
+        + STYLE + frame_activity() + body + "</svg>"
+    )
+
+
+def frame_activity():
+    return (
+        '<rect x="0.5" y="0.5" width="' + str(W - 1) + '" height="179" rx="10" fill="' + BG
+        + '" stroke="' + LINE + '"/>'
+    )
+
+
 def main():
     if not TOKEN:
         print("missing GH_TOKEN", file=sys.stderr)
@@ -199,10 +257,15 @@ def main():
 
     user = gql(QUERY, {"login": USER})["user"]
     os.makedirs(OUT_DIR, exist_ok=True)
-    content = build(user)
-    with open(OUT_FILE, "w", encoding="utf-8", newline="\n") as handle:
-        handle.write(content)
-    print("stats.svg %d bytes" % len(content))
+
+    outputs = (
+        ("stats.svg", build(user)),
+        ("activity.svg", build_activity(user)),
+    )
+    for name, content in outputs:
+        with open(os.path.join(OUT_DIR, name), "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(content)
+        print("%s %d bytes" % (name, len(content)))
     return 0
 
 
