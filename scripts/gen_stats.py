@@ -216,7 +216,7 @@ def build_activity(user):
     weeks = calendar["weeks"][-53:]
     total = calendar["totalContributions"]
 
-    x0, y0, pitch, size = 28.0, 60.0, 14.0, 11.0
+    x0, y0, pitch, size = 28.0, 60.0, 15.6, 12.0
     body = '<text class="mono lbl" x="28" y="34">ACTIVITY</text>'
     body += '<text class="mono sub" x="852" y="34" text-anchor="end">LAST 12 MONTHS</text>'
     body += '<line x1="28" y1="48" x2="852" y2="48" stroke="' + LINE + '"/>'
@@ -234,7 +234,14 @@ def build_activity(user):
 
     label = "%d contribution" % total if total == 1 else "%d contributions" % total
     body += '<text class="mono sub" x="28" y="166">' + label + " in the last year</text>"
-    body += '<text class="mono sub" x="852" y="166" text-anchor="end">every box is a night</text>'
+
+    body += '<text class="mono sub" x="624" y="166">LESS</text>'
+    for index in range(4):
+        body += (
+            '<rect x="' + str(664 + index * 13) + '" y="157" width="9" height="9" rx="2" fill="'
+            + LEVELS[index + 1] + '"/>'
+        )
+    body += '<text class="mono sub" x="724" y="166">MORE</text>'
 
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" width="' + str(W) + '" height="180" viewBox="0 0 '
