@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate monochrome profile stat cards from the GitHub GraphQL API."""
+"""Render one monochrome metrics panel for the profile README."""
 
 import json
 import os
@@ -10,13 +10,15 @@ USER = os.environ.get("GH_USER", "altrml")
 TOKEN = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.join(os.path.dirname(HERE), "assets")
+OUT_FILE = os.path.join(OUT_DIR, "stats.svg")
 
+W, H = 880, 220
 BG = "#0d1117"
 FG = "#ffffff"
 MUTED = "#8a8a8a"
 DIM = "#c9d1d9"
 LINE = "#262626"
-TRACK = "#1a1a1a"
+TRACK = "#181818"
 FONT = 'ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace'
 
 QUERY = """
@@ -44,7 +46,7 @@ query($login: String!) {
 
 
 def gql(query, variables):
-    req = urllib.request.Request(
+    request = urllib.request.Request(
         "https://api.github.com/graphql",
         data=json.dumps({"query": query, "variables": variables}).encode(),
         headers={
@@ -53,8 +55,8 @@ def gql(query, variables):
             "User-Agent": "altrml-profile-stats",
         },
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        payload = json.load(resp)
+    with urllib.request.urlopen(request, timeout=30) as response:
+        payload = json.load(response)
     if "errors" in payload:
         raise RuntimeError(payload["errors"])
     return payload["data"]
@@ -70,64 +72,73 @@ def esc(value):
     )
 
 
-def fmt(number):
-    n = int(number)
-    if n >= 1000000:
-        return "%sM" % trim(n / 1000000.0)
-    if n >= 1000:
-        return "%sk" % trim(n / 1000.0)
-    return str(n)
-
-
 def trim(value):
     text = "%.1f" % value
     return text[:-2] if text.endswith(".0") else text
 
 
+def fmt(number):
+    n = int(number)
+    if n >= 1000000:
+        return trim(n / 1000000.0) + "M"
+    if n >= 1000:
+        return trim(n / 1000.0) + "k"
+    return str(n)
+
+
 STYLE = (
-    '<defs><style>'
+    "<defs><style>"
     ".mono{font-family:" + FONT + "}"
     ".lbl{font-size:9.5px;letter-spacing:2.4px;fill:" + MUTED + "}"
-    ".val{font-size:26px;font-weight:700;letter-spacing:1px;fill:" + FG + "}"
+    ".val{font-size:30px;font-weight:700;letter-spacing:1px;fill:" + FG + "}"
     ".sub{font-size:10.5px;letter-spacing:1.4px;fill:" + MUTED + "}"
-    ".cell{animation:rise .55s cubic-bezier(.2,.7,.3,1) both}"
-    "@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}"
+    ".row{animation:rise .6s cubic-bezier(.2,.7,.3,1) both}"
+    "@keyframes rise{from{opacity:.3;transform:translateY(6px)}to{opacity:1;transform:none}}"
     ".scan{animation:sweep 7s linear infinite}"
-    "@keyframes sweep{0%{transform:translateY(-40px)}100%{transform:translateY(170px)}}"
+    "@keyframes sweep{0%{transform:translateY(-50px)}100%{transform:translateY(230px)}}"
     "</style>"
     '<linearGradient id="scan" x1="0" y1="0" x2="0" y2="1">'
     '<stop offset="0" stop-color="#ffffff" stop-opacity="0"/>'
-    '<stop offset=".5" stop-color="#ffffff" stop-opacity=".045"/>'
+    '<stop offset=".5" stop-color="#ffffff" stop-opacity=".04"/>'
     '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/>'
     "</linearGradient></defs>"
 )
 
-FRAME = (
-    '<rect x="0.5" y="0.5" width="419" height="161" rx="8" fill="' + BG
-    + '" stroke="' + LINE + '"/>'
-    '<rect x="0" y="0" width="420" height="162" fill="url(#scan)" class="scan" opacity=".9"/>'
-)
 
-
-def shell(label, body):
+def frame():
     return (
-        '<svg xmlns="http://www.w3.org/2000/svg" width="420" height="162" '
-        'viewBox="0 0 420 162" role="img" aria-label="' + esc(label) + '">'
-        + STYLE
-        + FRAME
-        + body
-        + "</svg>"
+        '<rect x="0.5" y="0.5" width="' + str(W - 1) + '" height="' + str(H - 1)
+        + '" rx="10" fill="' + BG + '" stroke="' + LINE + '"/>'
+        '<rect x="0" y="0" width="' + str(W) + '" height="' + str(H)
+        + '" rx="10" fill="url(#scan)" class="scan" opacity=".9"/>'
     )
 
 
-def header(title, right):
-    out = '<text class="mono lbl" x="22" y="30">' + title + "</text>"
-    out += '<text class="mono sub" x="398" y="30" text-anchor="end">' + right + "</text>"
-    out += '<line x1="22" y1="42" x2="398" y2="42" stroke="' + LINE + '"/>'
-    return out
+def stat_cell(label, value, x, y, delay):
+    return (
+        '<g class="row" style="animation-delay:' + str(delay) + 'ms">'
+        '<text class="mono lbl" x="' + str(x) + '" y="' + str(y - 26) + '">' + label + "</text>"
+        '<text class="mono val" x="' + str(x) + '" y="' + str(y) + '">' + esc(value) + "</text>"
+        "</g>"
+    )
 
 
-def stats_svg(user):
+def lang_row(name, percent, y, delay):
+    width = max(6.0, min(150.0, percent * 1.5))
+    return (
+        '<g class="row" style="animation-delay:' + str(delay) + 'ms">'
+        '<text class="mono sub" x="480" y="' + str(y) + '" fill="' + DIM + '">' + esc(name) + "</text>"
+        '<rect x="650" y="' + str(y - 9) + '" width="150" height="6" rx="3" fill="' + TRACK + '"/>'
+        '<rect x="650" y="' + str(y - 9) + '" width="0" height="6" rx="3" fill="' + FG + '" fill-opacity=".9">'
+        '<animate attributeName="width" from="0" to="' + ("%.1f" % width) + '" dur="1.1s" begin="'
+        + str(delay) + 'ms" fill="freeze"/>'
+        "</rect>"
+        '<text class="mono sub" x="852" y="' + str(y) + '" text-anchor="end">' + ("%.0f" % percent) + "%</text>"
+        "</g>"
+    )
+
+
+def build(user):
     repos = user["repositories"]["totalCount"]
     stars = sum(node["stargazerCount"] for node in user["repositories"]["nodes"])
     followers = user["followers"]["totalCount"]
@@ -136,32 +147,6 @@ def stats_svg(user):
     prs = cc["totalPullRequestContributions"]
     issues = cc["totalIssueContributions"]
 
-    body = header("STATS", "@" + USER)
-    body += '<line x1="210" y1="58" x2="210" y2="146" stroke="' + LINE + '"/>'
-
-    cells = (
-        ("REPOS", fmt(repos), 22, 82, 0),
-        ("STARS", fmt(stars), 216, 82, 90),
-        ("COMMITS 1Y", fmt(commits), 22, 136, 180),
-        ("FOLLOWERS", fmt(followers), 216, 136, 270),
-    )
-
-    for label, value, x, y, delay in cells:
-        body += (
-            '<g class="cell" style="animation-delay:' + str(delay) + 'ms">'
-            '<text class="mono lbl" x="' + str(x) + '" y="' + str(y - 16) + '">' + label + "</text>"
-            '<text class="mono val" x="' + str(x) + '" y="' + str(y) + '">' + esc(value) + "</text>"
-            "</g>"
-        )
-
-    body += (
-        '<text class="mono sub" x="398" y="152" text-anchor="end">'
-        + fmt(prs) + " pr / " + fmt(issues) + " issues</text>"
-    )
-    return shell("altrml stats", body)
-
-
-def langs_svg(user):
     totals = {}
     for node in user["repositories"]["nodes"]:
         for edge in node["languages"]["edges"]:
@@ -171,30 +156,37 @@ def langs_svg(user):
     ranked = sorted(totals.items(), key=lambda item: item[1], reverse=True)[:5]
     grand = sum(totals.values()) or 1
 
-    body = header("STACK", "BY BYTES")
+    body = '<text class="mono lbl" x="28" y="34">METRICS</text>'
+    body += '<text class="mono sub" x="852" y="34" text-anchor="end">@' + esc(USER) + "</text>"
+    body += '<line x1="28" y1="48" x2="852" y2="48" stroke="' + LINE + '"/>'
+    body += '<line x1="214" y1="72" x2="214" y2="182" stroke="' + LINE + '"/>'
+    body += '<line x1="455" y1="66" x2="455" y2="196" stroke="' + LINE + '"/>'
 
-    if not ranked:
-        body += '<text class="mono sub" x="210" y="104" text-anchor="middle">awaiting first commit</text>'
-        return shell("altrml languages", body)
+    body += stat_cell("REPOS", fmt(repos), 28, 100, 0)
+    body += stat_cell("STARS", fmt(stars), 240, 100, 70)
+    body += stat_cell("COMMITS 1Y", fmt(commits), 28, 172, 140)
+    body += stat_cell("FOLLOWERS", fmt(followers), 240, 172, 210)
 
-    y = 76
-    for index, (name, size) in enumerate(ranked):
-        pct = size * 100.0 / grand
-        width = max(5.0, min(150.0, (pct / 100.0) * 150.0))
-        delay = index * 110
-        body += (
-            '<g class="cell" style="animation-delay:' + str(delay) + 'ms">'
-            '<text class="mono sub" x="22" y="' + str(y - 4) + '" fill="' + DIM + '">'
-            + esc(name) + "</text>"
-            '<rect x="150" y="' + str(y - 10) + '" width="150" height="6" rx="3" fill="' + TRACK + '"/>'
-            '<rect x="150" y="' + str(y - 10) + '" width="' + ("%.1f" % width) + '" height="6" rx="3" fill="' + FG + '" fill-opacity="0.9"/>'
-            '<text class="mono sub" x="398" y="' + str(y - 4) + '" text-anchor="end">'
-            + ("%.0f" % pct) + "%</text>"
-            "</g>"
-        )
-        y += 22
+    body += '<text class="mono lbl" x="480" y="76">STACK</text>'
+    body += '<text class="mono sub" x="852" y="76" text-anchor="end">BY BYTES</text>'
 
-    return shell("altrml languages", body)
+    if ranked:
+        y = 106
+        for index, (name, size) in enumerate(ranked):
+            body += lang_row(name, size * 100.0 / grand, y, 120 + index * 90)
+            y += 22
+    else:
+        body += '<text class="mono sub" x="480" y="110">awaiting first commit</text>'
+
+    body += '<text class="mono sub" x="28" y="206">' + fmt(prs) + " pr / " + fmt(issues) + " issues</text>"
+    body += '<text class="mono sub" x="852" y="206" text-anchor="end">' + fmt(repos) + " repos tracked</text>"
+
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="' + str(W) + '" height="' + str(H)
+        + '" viewBox="0 0 ' + str(W) + " " + str(H)
+        + '" role="img" aria-label="altrml metrics">'
+        + STYLE + frame() + body + "</svg>"
+    )
 
 
 def main():
@@ -204,13 +196,10 @@ def main():
 
     user = gql(QUERY, {"login": USER})["user"]
     os.makedirs(OUT_DIR, exist_ok=True)
-
-    for name, content in (("stats.svg", stats_svg(user)), ("langs.svg", langs_svg(user))):
-        path = os.path.join(OUT_DIR, name)
-        with open(path, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(content)
-        print("%s %d bytes" % (name, len(content)))
-
+    content = build(user)
+    with open(OUT_FILE, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(content)
+    print("stats.svg %d bytes" % len(content))
     return 0
 
 
