@@ -1,1 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="240" viewBox="0 0 1200 240" role="img" aria-label="altrml — alyyy">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#1a212c" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="topfade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1117" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0d1117" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="typecut">
+      <rect x="56" y="160" width="0" height="34">
+        <animate attributeName="width" values="0;304;304;0" keyTimes="0;0.22;0.97;1" dur="7.4s" repeatCount="indefinite"/>
+      </rect>
+    </clipPath>
+    <style>
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+      .name {
+        font-size: 92px; font-weight: 700; letter-spacing: 4px; fill: #ffffff;
+        animation: breathe 6s ease-in-out infinite;
+      }
+      @keyframes breathe { 0%,100% { opacity: 0.86 } 50% { opacity: 1 } }
+      .tag { font-size: 17px; letter-spacing: 2px; fill: #c9d1d9; }
+      .meta { font-size: 13px; letter-spacing: 2.5px; fill: #6e7681; }
+      .prompt { font-size: 14px; letter-spacing: 1.5px; fill: #6e7681; }
+      .cursor { animation: blink 1s steps(1) infinite; }
+      @keyframes blink { 0%,49% { opacity: 1 } 50%,100% { opacity: 0 } }
+      .scan {
+        animation: sweep 5.5s linear infinite;
+      }
+      @keyframes sweep { 0% { transform: translateY(-80px) } 100% { transform: translateY(260px) } }
+      .wave { animation: drift 14s linear infinite; }
+      @keyframes drift { 0% { transform: translateX(0) } 100% { transform: translateX(-1200px) } }
+      .wave2 { animation: drift2 22s linear infinite; }
+      @keyframes drift2 { 0% { transform: translateX(-1200px) } 100% { transform: translateX(0) } }
+      .bracket { fill: none; stroke: #30363d; stroke-width: 1.4; animation: pulse 4s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity: 0.45 } 50% { opacity: 1 } }
+      .rule { stroke: #21262d; stroke-width: 1; }
+    </style>
+  </defs>
 
+  <rect width="1200" height="240" fill="#0d1117"/>
+  <rect width="1200" height="240" fill="url(#grid)" opacity="0.55"/>
+
+  <g class="scan"><rect x="0" y="0" width="1200" height="80" fill="url(#scan)"/></g>
+
+  <path class="bracket" d="M24 44V24h20"/>
+  <path class="bracket" d="M1176 44V24h-20"/>
+  <path class="bracket" d="M24 196v20h20"/>
+  <path class="bracket" d="M1176 196v20h-20"/>
+
+  <text class="mono prompt" x="56" y="52">~/walls</text>
+  <text class="mono prompt" x="122" y="52" fill="#ffffff">$ whoami</text>
+
+  <text class="mono name" x="56" y="136" textLength="380" lengthAdjust="spacingAndGlyphs">altrml</text>
+
+  <rect class="cursor" x="456" y="66" width="18" height="72" fill="#ffffff">
+    <animate attributeName="x" values="456;456;456;456" keyTimes="0;0.22;0.97;1" dur="7.4s" repeatCount="indefinite"/>
+  </rect>
+
+  <text class="mono tag" x="56" y="182" clip-path="url(#typecut)" textLength="304" lengthAdjust="spacingAndGlyphs">builder. breaker. shipper.</text>
+
+  <line class="rule" x1="800" y1="76" x2="1144" y2="76"/>
+  <text class="mono meta" x="1144" y="106" text-anchor="end">systems</text>
+  <text class="mono meta" x="1144" y="130" text-anchor="end">reverse engineering</text>
+  <text class="mono meta" x="1144" y="154" text-anchor="end">low-level</text>
+  <line class="rule" x1="800" y1="172" x2="1144" y2="172"/>
+
+  <g clip-path="url(#typecut)">
+    <rect x="56" y="160" width="304" height="34" fill="#ffffff" opacity="0.05"/>
+  </g>
+
+  <rect x="0" y="200" width="1200" height="40" fill="url(#topfade)"/>
+
+  <g class="wave" opacity="0.55">
+    <path d="M0 214 C150 194 300 234 450 214 C600 194 750 234 900 214 C1050 194 1200 234 1350 214 C1500 194 1650 234 1800 214 C1950 194 2100 234 2250 214 C2400 194 2550 234 2700 214" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.55"/>
+  </g>
+  <g class="wave2" opacity="0.4">
+    <path d="M0 228 C150 210 300 246 450 228 C600 210 750 246 900 228 C1050 210 1200 246 1350 228 C1500 210 1650 246 1800 228 C1950 210 2100 246 2250 228 C2400 210 2550 246 2700 228" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.35"/>
+  </g>
+</svg>
