@@ -179,7 +179,10 @@ def build(user):
         body += '<text class="mono sub" x="480" y="110">awaiting first commit</text>'
 
     body += '<text class="mono sub" x="28" y="206">' + fmt(prs) + " pr / " + fmt(issues) + " issues</text>"
-    body += '<text class="mono sub" x="852" y="206" text-anchor="end">' + fmt(repos) + " repos tracked</text>"
+    body += (
+        '<text class="mono sub" x="852" y="206" text-anchor="end">'
+        + fmt(repos) + (" repo tracked" if repos == 1 else " repos tracked") + "</text>"
+    )
 
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" width="' + str(W) + '" height="' + str(H)
