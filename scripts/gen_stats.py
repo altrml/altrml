@@ -32,7 +32,7 @@ query($login: String!) {
       totalIssueContributions
       contributionCalendar {
         totalContributions
-        weeks { contributionDays { contributionCount } }
+        weeks { contributionDays { contributionCount date } }
       }
     }
     repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
@@ -96,6 +96,7 @@ STYLE = (
     ".lbl{font-size:9.5px;letter-spacing:2.4px;fill:" + MUTED + "}"
     ".val{font-size:30px;font-weight:700;letter-spacing:1px;fill:" + FG + "}"
     ".sub{font-size:10.5px;letter-spacing:1.4px;fill:" + MUTED + "}"
+    ".col{font-size:9px;letter-spacing:2px;fill:#6e7681}"
     ".row{animation:rise .6s cubic-bezier(.2,.7,.3,1) both}"
     "@keyframes rise{from{opacity:.3;transform:translateY(6px)}to{opacity:1;transform:none}}"
     ".scan{animation:sweep 7s linear infinite}"
@@ -211,15 +212,52 @@ def level_of(count):
     return 4
 
 
+MONTHS = ("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+ACT_H = 196
+
+
+def streaks(days):
+    best = 0
+    run = 0
+    for day in days:
+        if day["contributionCount"] > 0:
+            run += 1
+            best = max(best, run)
+        else:
+            run = 0
+
+    current = 0
+    for day in reversed(days):
+        if day["contributionCount"] > 0:
+            current += 1
+        else:
+            break
+    return current, best
+
+
 def build_activity(user):
     calendar = user["contributionsCollection"]["contributionCalendar"]
     weeks = calendar["weeks"][-53:]
     total = calendar["totalContributions"]
 
-    x0, y0, pitch, size = 28.0, 60.0, 15.6, 12.0
+    days = [day for week in weeks for day in week["contributionDays"]]
+    current, best = streaks(days)
+
+    x0, y0, pitch, size = 28.0, 74.0, 15.6, 12.0
     body = '<text class="mono lbl" x="28" y="34">ACTIVITY</text>'
     body += '<text class="mono sub" x="852" y="34" text-anchor="end">LAST 12 MONTHS</text>'
     body += '<line x1="28" y1="48" x2="852" y2="48" stroke="' + LINE + '"/>'
+
+    previous_month = None
+    for week_index, week in enumerate(weeks):
+        stamp = week["contributionDays"][0]["date"]
+        month = int(stamp[5:7])
+        if month != previous_month:
+            previous_month = month
+            body += (
+                '<text class="mono col" x="' + ("%.0f" % (x0 + week_index * pitch))
+                + '" y="64">' + MONTHS[month - 1] + "</text>"
+            )
 
     body += '<g class="row">'
     for week_index, week in enumerate(weeks):
@@ -233,27 +271,30 @@ def build_activity(user):
     body += "</g>"
 
     label = "%d contribution" % total if total == 1 else "%d contributions" % total
-    body += '<text class="mono sub" x="28" y="166">' + label + " in the last year</text>"
+    body += '<text class="mono sub" x="28" y="186">' + label + "</text>"
 
-    body += '<text class="mono sub" x="624" y="166">LESS</text>'
+    body += '<text class="mono sub" x="470" y="186">LESS</text>'
     for index in range(4):
         body += (
-            '<rect x="' + str(664 + index * 13) + '" y="157" width="9" height="9" rx="2" fill="'
+            '<rect x="' + str(510 + index * 13) + '" y="177" width="9" height="9" rx="2" fill="'
             + LEVELS[index + 1] + '"/>'
         )
-    body += '<text class="mono sub" x="724" y="166">MORE</text>'
+    body += '<text class="mono sub" x="566" y="186">MORE</text>'
+
+    streak = "current %dd / best %dd" % (current, best)
+    body += '<text class="mono sub" x="852" y="186" text-anchor="end">' + streak + "</text>"
 
     return (
-        '<svg xmlns="http://www.w3.org/2000/svg" width="' + str(W) + '" height="180" viewBox="0 0 '
-        + str(W) + ' 180" role="img" aria-label="altrml activity">'
+        '<svg xmlns="http://www.w3.org/2000/svg" width="' + str(W) + '" height="' + str(ACT_H)
+        + '" viewBox="0 0 ' + str(W) + " " + str(ACT_H) + '" role="img" aria-label="altrml activity">'
         + STYLE + frame_activity() + body + "</svg>"
     )
 
 
 def frame_activity():
     return (
-        '<rect x="0.5" y="0.5" width="' + str(W - 1) + '" height="179" rx="10" fill="' + BG
-        + '" stroke="' + LINE + '"/>'
+        '<rect x="0.5" y="0.5" width="' + str(W - 1) + '" height="' + str(ACT_H - 1)
+        + '" rx="10" fill="' + BG + '" stroke="' + LINE + '"/>'
     )
 
 
