@@ -31,19 +31,11 @@ typedef struct rat {
 } rat_t;
 ```
 
-Baca binary, bongkar protocol, tulis ulang dari metal ke atas.
-Kalau dokumentasinya bohong, packet capture yang jawab.
-
 ---
 
-### `> arsenal`
+### `> skills`
 
-| Lapisan | Isi |
-| :--- | :--- |
-| `low-level` | C · C++ · Rust · x86-64 · Windows internals |
-| `high-level` | Python · C# · Go · TypeScript |
-| `wire` | Ghidra · Wireshark · Neovim · Git · Docker |
-| `platform` | Windows · Linux · Ghostty · WSL |
+<img src="assets/skills.svg" width="100%" alt="skills"/>
 
 ---
 
