@@ -2,8 +2,6 @@
 
 <img src="assets/header.svg" width="100%" alt="altrml — alyyy"/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=20&pause=1000&color=FFFFFF&center=true&vCenter=true&width=620&lines=builder.+breaker.+shipper.;reverse+engineer+by+instinct;reading+binaries+at+3AM;if+the+docs+lie%2C+trust+the+packets;what%27s+the+next+crumb%3F" alt="typing"/>
-
 <br/>
 
 <a href="mailto:alitrmlzxyz@gmail.com">
@@ -15,10 +13,6 @@
 <a href="https://github.com/altrml">
   <img src="https://img.shields.io/badge/GitHub-altrml-0d1117?style=for-the-badge&logo=github&logoColor=ffffff" alt="github"/>
 </a>
-
-<br/><br/>
-
-<img src="https://komarev.com/ghpvc/?username=altrml&style=for-the-badge&color=ffffff&labelColor=0d1117&label=VISITORS" alt="visitors"/>
 
 </div>
 
