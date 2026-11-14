@@ -58,8 +58,6 @@
 
   <text class="mono name" x="56" y="136" textLength="380" lengthAdjust="spacingAndGlyphs">altrml</text>
 
-  <rect class="cursor" x="456" y="66" width="18" height="72" fill="#ffffff"/>
-
   <g clip-path="url(#typecut)">
     <text class="mono tag" x="56" y="182" textLength="304" lengthAdjust="spacingAndGlyphs">builder. breaker. shipper.</text>
   </g>
